@@ -25,12 +25,12 @@ jobs:
         echo ${{ env.GITHUB_SHA_SHORT }}
     - name: Build the Docker image
       run: |
-        docker build . --file Dockerfile -t eafxx/rebuild-dndc:unraid-m
-        docker build . --file Dockerfile -t eafxx/rebuild-dndc:unraid-m-${{ env.GITHUB_SHA_SHORT }}
+        docker build . --file Dockerfile -t ${{ secrets.DOCKER_USER }}/rebuild-dndc:unraid-m
+        docker build . --file Dockerfile -t ${{ secrets.DOCKER_USER }}/rebuild-dndc:unraid-m-${{ env.GITHUB_SHA_SHORT }}
     - name: Docker Push
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PWD: ${{ secrets.DOCKER_PWD }}      
       run: |
-        docker push eafxx/rebuild-dndc:unraid-m
-        docker push eafxx/rebuild-dndc:unraid-m-${{ env.GITHUB_SHA_SHORT }}
+        docker push ${{ secrets.DOCKER_USER }}/rebuild-dndc:unraid-m
+        docker push ${{ secrets.DOCKER_USER }}/rebuild-dndc:unraid-m-${{ env.GITHUB_SHA_SHORT }}
