@@ -6,16 +6,16 @@ ver=4.0.7-u
 SCRIPTNAME=`basename $0`
 PIDFILE=/var/run/${SCRIPTNAME}.pid
 if [ -f "$PIDFILE" ]; then
-	PIDlife=$(find "$PIDFILE" -type f -mmin +5 | grep . > /dev/null 2>&1 ; echo $?)
-	if [ "${PIDlife}" == '0' ]
-	then
-		echo
-		echo "Healing..."
-    		rm -rf $PIDFILE
-	else
-		echo
-		echo "App healthy..."
-	fi
+    PIDlife=$(find "$PIDFILE" -type f -mmin +5 | grep . > /dev/null 2>&1 ; echo $?)
+    if [ "${PIDlife}" == '0' ]
+    then
+        echo
+        echo "Healing..."
+            rm -rf $PIDFILE
+    else
+        echo
+        echo "App healthy..."
+    fi
 fi
 if [ -f ${PIDFILE} ]; then
    #verify if the process is actually still running under this pid
@@ -37,11 +37,11 @@ templatename=''
 datetime=$(date)
 buildcont_cmd="$rundockertemplate_script -v $docker_tmpl_loc/my-$templatename.xml"
 mastercontid=$(docker inspect --format="{{.Id}}" $mastercontname)
-if [[ -z "$custom_network" || "$custom_network" = "false" ]]
+if [ "$masternetname" != "" ]
 then
-    getmastercontendpointid=$(docker inspect $mastercontname --format="{{ .NetworkSettings.EndpointID }}")
+    getmastercontendpointid=$(docker inspect $mastercontname --format='{{ $network := index .NetworkSettings.Networks "'"$masternetname"'" }}{{ $network.EndpointID}}')
 else
-    getmastercontendpointid=$(docker inspect $mastercontname --format="{{ .NetworkSettings.Networks.${custom_network}.EndpointID }}")
+    getmastercontendpointid=$(docker inspect $mastercontname --format="{{ .NetworkSettings.EndpointID }}")
 fi
 get_container_names=($(docker ps -a --format="{{ .Names }}"))
 get_container_ids=($(docker ps -a --format="{{ .ID }}"))
@@ -134,7 +134,12 @@ first_run()
     then
         printf "A. SKIPPING: FIRST RUN SETUP\n" 
         was_run=0
-        getmastercontendpointid=$(docker inspect $mastercontname --format="{{ .NetworkSettings.EndpointID }}")
+        if [ "$masternetname" != "" ]
+        then
+            getmastercontendpointid=$(docker inspect $mastercontname --format='{{ $network := index .NetworkSettings.Networks "'"$masternetname"'" }}{{ $network.EndpointID}}')
+        else
+            getmastercontendpointid=$(docker inspect $mastercontname --format="{{ .NetworkSettings.EndpointID }}")
+        fi
         currentendpointid=$(<$mastercontepfile_loc/mastercontepid.tmp)      
     fi
 }
