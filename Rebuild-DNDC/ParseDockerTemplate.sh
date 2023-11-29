@@ -110,7 +110,7 @@ add_net(){
 	else
 		net=$(xmllint --xpath "/Container/Networking/Mode/text()" $xmlFile 2> /dev/null)
 	fi
-	if [[ $net != "none" ]]; then
+	if [[ $net != none ]]; then
 		docker_string+=" --net=\"$net\""
 		if [[ $net == bridge ]]; then
 			call_add_ports=1
@@ -138,8 +138,8 @@ add_envars(){
 			type=`echo "$type" | cut -d'"' -f 2`
 			if [[ $type == 'Variable' ]]; then
 				name=$(xmllint --xpath "/Container/Config[$numEnVars]/@Target" $xmlFile | cut -d '"' -f 2)
-				value=$(xmllint --xpath "/Container/Config[$numEnVars]/text()" $xmlFile | cut -d '"' -f 2)
-				docker_string+=" -e $name=\"$value\""
+				value=$(xmllint --xpath "/Container/Config[$numEnVars]/text()" $xmlFile)
+				docker_string+=" -e '$name'='$value'"
 				[ "$verbose" = "1" ] && echo "Found Environment:  -e $name=\"$value\""
 			fi
 			((numEnVars++))
